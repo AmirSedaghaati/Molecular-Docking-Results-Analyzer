@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""
+Molecular Docking Results Analyzer
+Analyzes AutoDock Vina output files and generates binding affinity plots
+Author: Amir Sedaghati
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from pathlib import Path
+
+def parse_vina_output(file_path):
+    """Parse AutoDock Vina output file and extract binding affinities"""
+    compounds = []
+    affinities = []
+    
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    
+    current_compound = None
+    for line in lines:
+        if line.startswith('REMARK Name ='):
+            current_compound = line.split('=')[1].strip()
+        elif 'VINA RESULT:' in line:
+            parts = line.split()
+            if len(parts) >= 4:
+                affinity = float(parts[3])
+                compounds.append(current_compound)
+                affinities.append(affinity)
+    
+    return pd.DataFrame({'Compound': compounds, 'Binding_Affinity': affinities})
+
+def analyze_binding_data(df):
+    """Perform basic statistical analysis on binding affinities"""
+    print("=== Binding Affinity Analysis ===")
+    print(f"Total compounds analyzed: {len(df)}")
+    print(f"Best binding affinity: {df['Binding_Affinity'].min():.2f} kcal/mol")
+    print(f"Average binding affinity: {df['Binding_Affinity'].mean():.2f} kcal/mol")
+    print(f"Standard deviation: {df['Binding_Affinity'].std():.2f} kcal/mol")
+    
+    # Find top 10 compounds
+    top_compounds = df.nsmallest(10, 'Binding_Affinity')
+    print("\n=== Top 10 Compounds ===")
+    for i, row in top_compounds.iterrows():
+        print(f"{row['Compound']}: {row['Binding_Affinity']:.2f} kcal/mol")
+    
+    return top_compounds
+
+def create_plots(df, output_dir='plots'):
+    """Generate visualization plots for binding affinities"""
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    # Set style
+    plt.style.use('seaborn-v0_8')
+    
+    # Plot 1: Histogram of binding affinities
+    plt.figure(figsize=(10, 6))
+    plt.hist(df['Binding_Affinity'], bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+    plt.xlabel('Binding Affinity (kcal/mol)')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Binding Affinities')
+    plt.axvline(df['Binding_Affinity'].mean(), color='red', linestyle='--', 
+                label=f'Mean: {df["Binding_Affinity"].mean():.2f}')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/affinity_distribution.png', dpi=300)
+    plt.show()
+    
+    # Plot 2: Top 20 compounds
+    top_20 = df.nsmallest(20, 'Binding_Affinity')
+    plt.figure(figsize=(12, 8))
+    bars = plt.barh(range(len(top_20)), top_20['Binding_Affinity'])
+    plt.yticks(range(len(top_20)), top_20['Compound'], fontsize=8)
+    plt.xlabel('Binding Affinity (kcal/mol)')
+    plt.title('Top 20 Compounds by Binding Affinity')
+    plt.gca().invert_yaxis()
+    
+    # Color bars based on affinity strength
+    for i, bar in enumerate(bars):
+        if top_20.iloc[i]['Binding_Affinity'] < -8:
+            bar.set_color('red')
+        elif top_20.iloc[i]['Binding_Affinity'] < -6:
+            bar.set_color('orange')
+        else:
+            bar.set_color('lightblue')
+    
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/top_compounds.png', dpi=300)
+    plt.show()
+
+def filter_compounds(df, threshold=-6.0):
+    """Filter compounds based on binding affinity threshold"""
+    filtered = df[df['Binding_Affinity'] <= threshold]
+    print(f"\n=== Compounds with affinity <= {threshold} kcal/mol ===")
+    print(f"Found {len(filtered)} promising compounds")
+    
+    if len(filtered) > 0:
+        filtered_sorted = filtered.sort_values('Binding_Affinity')
+        filtered_sorted.to_csv('promising_compounds.csv', index=False)
+        print("Results saved to 'promising_compounds.csv'")
+    
+    return filtered
+
+def main():
+    """Main analysis workflow"""
+    # Create sample data if no input file exists
+    if not Path('docking_results.txt').exists():
+        print("Creating sample data...")
+        create_sample_data()
+    
+    # Parse docking results
+    print("Parsing docking results...")
+    df = parse_vina_output('docking_results.txt')
+    
+    if df.empty:
+        print("No data found in input file!")
+        return
+    
+    # Perform analysis
+    top_compounds = analyze_binding_data(df)
+    
+    # Create visualizations
+    print("\nGenerating plots...")
+    create_plots(df)
+    
+    # Filter promising compounds
+    promising = filter_compounds(df, threshold=-6.5)
+    
+    print("\nAnalysis complete!")
+
+def create_sample_data():
+    """Create sample docking data for testing"""
+    compounds = [f"Compound_{i:03d}" for i in range(1, 101)]
+    affinities = np.random.normal(-5.5, 1.5, 100)
+    
+    with open('docking_results.txt', 'w') as f:
+        for comp, aff in zip(compounds, affinities):
+            f.write(f"REMARK Name = {comp}\n")
+            f.write(f"VINA RESULT: {aff:.2f} 0.000 0.000\n")
+            f.write("END\n")
+    
+    print("Sample data created: docking_results.txt")
+
+if __name__ == "__main__":
+    main()
