@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/ussr/bin/env python3
 """
 Molecular Docking Results Analyzer
 Analyzes AutoDock Vina output files and generates binding affinity plots
