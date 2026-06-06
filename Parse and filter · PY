@@ -1,27 +1,7 @@
-"""
-parse_and_filter.py
-
-During my thesis, I screened a library of natural compounds against a target enzyme
-using AutoDock Vina. After each batch of docking runs, I had to manually open each
-output file, copy the binding affinity, check Lipinski criteria, and build a ranked list
-in Excel. With ~120 compounds, this took several hours per round.
-
-This script automates that process:
-- Reads docking results from a CSV (parsed from Vina log files)
-- Applies Lipinski Rule of Five to filter out poor drug candidates
-- Ranks remaining hits by binding affinity
-- Flags top hits below a defined threshold
-- Saves a clean summary table and a plot
-
-Note: The input CSV here uses mock data. The real dataset from my thesis
-is not uploaded because it contains unpublished experimental results.
-"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 import os
-
 
 # --- Configuration ---
 # These thresholds were chosen based on standard hit selection criteria
