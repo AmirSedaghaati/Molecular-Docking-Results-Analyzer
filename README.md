@@ -1,51 +1,35 @@
 # vina-docking-filter
 
 Python scripts to parse, filter, and rank AutoDock Vina docking results.
-Written as part of my MSc thesis in biochemistry.
 
 ---
 
 ## Context
 
-This repository contains scripts I wrote during my master's thesis research
-on enzyme inhibition using natural compounds. The docking experiments were
-carried out using AutoDock Vina as part of a larger virtual screening workflow.
+The code below will handle only the first stage which is converting the raw docking output into a list of screened and ordered compounds.
+A small fake dataset is provided to allow testing and checking of the pipeline.
 
-The code here covers one specific step: taking the raw docking output and
-turning it into a filtered, ranked list of candidate compounds.
-
-The original dataset is not included because the experimental results are
-part of an ongoing study and have not yet been published in full.
-A small mock dataset is provided instead so the pipeline can be tested and reviewed.
-
----
 
 ## The Problem
 
-After each docking batch, I had to:
-1. Open every Vina output file individually
-2. Copy the binding affinity score into a spreadsheet by hand
-3. Manually check each compound against Lipinski criteria
-4. Sort the list and decide which hits to carry forward
-
-With 120+ compounds per batch and multiple rounds of screening, this took
-several hours of manual work and introduced transcription errors.
+After each docking run I had to:
+1. Open up each of the Vina output files (one by one)
+2. Copy the binding affinity number by hand into a spreadsheet
+3. Go through each compound and determine if they violated Lipinski's criteria (by hand)
+4. Sort and determine which hits to include in subsequent screens
+This process was taking multiple hours to complete by hand for each batch (120+ compounds) and resulted in transcription errors.
 
 ---
 
 ## The Solution
 
-`parse_and_filter.py` does the following:
-
-1. Reads docking results from a structured CSV file
-2. Filters out compounds that fail Lipinski Rule of Five
-3. Ranks the remaining compounds by binding affinity (lowest kcal/mol = tightest binding)
-4. Flags compounds below a defined affinity threshold as hits
-5. Saves a ranked summary table and a bar chart of the results
-
-The mock data in `data/mock_data/docking_results.csv` simulates the format
-of the real output from my thesis. It uses known natural compounds with
-publicly available docking values for reference.
+Parseandfilter.py performs the following:
+1. Reads the docking results from a properly structured CSV file
+2. Filters the compounds which do not follow Lipinski Rule of Five
+3. Ranks compounds by binding energy (the lowest value of kcal/mol has the tightest binding energy).
+4. Marks the hits compounds with an affinity threshold value (below this threshold value the compounds are considered to be hit)
+5. Writes a ranking table as well as a bar graph representation of the result to a file.
+Mock data (data/mockdata/dockingresults.csv) represents the output of the real data which is in my thesis, these are natural compounds with known docking energies to serve as a reference.
 
 ---
 
@@ -106,21 +90,6 @@ From the mock dataset (10 compounds), after Lipinski filtering and ranking:
 | 3    | Berberine  | −6.74                | ✓    |
 | 4    | Apigenin   | −6.58                | ✓    |
 | 5    | Aesculin   | −6.39                | ✓    |
-
----
-
-## Honest Skill Disclaimer
-
-I am a biochemist who uses computational tools to advance my research and
-am still learning more advanced programming concepts.
-
-This code was written to solve a specific problem in my thesis workflow —
-not to be a general-purpose software package. The structure is intentionally
-simple: plain functions, pandas for data handling, matplotlib for plotting.
-I prioritized clarity and correctness over software engineering conventions.
-
-If you find a bug or have a suggestion, feel free to open an issue.
-I'm still learning and I welcome feedback.
 
 ---
 
