@@ -1,54 +1,58 @@
-# Vina Docking Filter
+# Vina Docking Pipeline
 
-> An automated pipeline to parse, filter, and rank AutoDock Vina results for virtual screening.
-
----
+An automated pipeline to parse, filter, and rank AutoDock Vina docking results for virtual screening.
 
 ## Background
 
-For the analysis of AutoDock Vina outputs of large libraries of compounds, it is necessary to extract the binding affinities from each log file, assess adherence to Rule of 5 of Lipinski, and rank hits. When doing this manually for hundreds of compounds, bottlenecks in data manipulation occur and transcriptional errors arise, impeding the lead identification step.
-
----
+The post-processing of AutoDock Vina output for large compound libraries requires retrieving binding affinities, assessing Lipinski Rule of Five, and sorting of hits. Manual verification over hundreds of compounds takes time and errors are easily committed, thus creating an bottleneck at the lead identification process.
 
 ## Implementation
 
-A Python script (parseandfilter.py) is provided here to automate the post-docking work. The workflow consists of:
-1. Parsing the docking results from the formatted Vina CSV outputs.
-2. Applying Lipinski's rules to remove compounds that are not drug-like.
-3. Ranking the remaining compounds by their binding energy, where smaller numbers indicate better affinity (lower kcal/mol is tighter binding).
-4. Marking "hits" according to an affinity threshold that can be easily adjusted.
-5. Outputting both a tabular ranking of ranked compounds and a bar chart of the filtered compounds.
+The script `parse_and_filter.py` automates this workflow:
 
-In my thesis, a subset of the data represented the set of natural compounds that were tested. A sample dataset that mimics my natural compound set can be found in data/mock_data/, and can be run by the pipeline, saving time if the original raw data is unavailable.
-
----
+1. Parses docking results from a formatted CSV (binding affinities, Lipinski properties).
+2. Applies a pre-calculated Lipinski Rule of Five flag to remove non-drug-like compounds.
+3. Ranks the remaining compounds by binding affinity (more negative = tighter binding).
+4. Flags "hits" against a configurable affinity threshold.
+5. Outputs a ranked summary table and a bar chart of binding affinities.
 
 ## Technical Stack
 
 | Component | Function |
-| :--- | :--- |
-| **Python 3.10+** | Core data processing |
-| **pandas** | Tabular data manipulation and ranking |
-| **matplotlib** | Visualization of binding affinities |
+|---|---|
+| Python 3.10+ | Core data processing |
+| pandas | Tabular data manipulation and ranking |
+| matplotlib | Visualization of binding affinities |
 
----
+## Usage
+
+Run from the repository root:
+
+```bash
+pip install -r requirements.txt
+
+python parse_and_filter.py --input data/mock_data/docking_results.csv --results results/
+```
+
+## Mock Data
+
+`data/mock_data/docking_results.csv` is an illustrative dataset for testing the pipeline. It does not reproduce the exact rankings or compound set from the published screening study (Biochemical and Biophysical Reports, [DOI link]) — it is provided so the pipeline can be run end-to-end without access to the original raw data.
 
 ## File Structure
 
-```text
-vina-docking-filter/
+```
+vina-docking-pipeline/
 │
 ├── data/
 │   └── mock_data/
-│       └── docking_results.csv     # Simulated docking results for testing
+│       └── docking_results.csv     # Illustrative docking results for testing
 │
 ├── results/                        # Output folder (generated on execution)
 │   ├── ranked_hits.csv
 │   └── affinity_chart.png
 │
-├── scripts/
-│   └── parse_and_filter.py         # Main pipeline script
-│
+├── parse_and_filter.py             # Main pipeline script
 ├── .gitignore
 ├── requirements.txt
 └── README.md
+```
