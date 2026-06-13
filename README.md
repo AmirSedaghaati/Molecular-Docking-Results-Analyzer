@@ -36,7 +36,7 @@ python parse_and_filter.py --input data/mock_data/docking_results.csv --results 
 
 ## Mock Data
 
-`data/mock_data/docking_results.csv` is an illustrative dataset for testing the pipeline. It does not reproduce the exact rankings or compound set from the published screening study (Biochemical and Biophysical Reports, [DOI link]) — it is provided so the pipeline can be run end-to-end without access to the original raw data.
+`data/mock_data/docking_results.csv` is an illustrative dataset for testing the pipeline. It does not reproduce the exact rankings or compound set from the published screening study (Biochemical and Biophysical Reports,[doi.org/10.1016/j.bbrep.2025.102171]) — it is provided so the pipeline can be run end-to-end without access to the original raw data.
 
 ## File Structure
 
