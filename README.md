@@ -1,20 +1,20 @@
 # Vina Docking Pipeline
 
-An automated pipeline to parse, filter, and rank AutoDock Vina docking results for virtual screening.
+This automated pipeline is designed to parse, filter and rank theAuto Dock Vina docking results obtained from virtual screening.
 
 ## Background
 
-The post-processing of AutoDock Vina output for large compound libraries requires retrieving binding affinities, assessing Lipinski Rule of Five, and sorting of hits. Manual verification over hundreds of compounds takes time and errors are easily committed, thus creating an bottleneck at the lead identification process.
+For post-processing large library docking with AutoDock Vina we require obtaining binding affinities and checking against lipinski's rule of 5 and ordering the hits. Repeating this manually on a hundred compounds would be very tedious, error prone, and become a bottle neck in the lead discovery phase.
 
 ## Implementation
 
-The script `parse_and_filter.py` automates this workflow:
+The parseandfilter.py script automates this:
 
-1. Parses docking results from a formatted CSV (binding affinities, Lipinski properties).
-2. Applies a pre-calculated Lipinski Rule of Five flag to remove non-drug-like compounds.
-3. Ranks the remaining compounds by binding affinity (more negative = tighter binding).
-4. Flags "hits" against a configurable affinity threshold.
-5. Outputs a ranked summary table and a bar chart of binding affinities.
+1. Takes docking output from an appropriately formatted CSV file (binding affinities, Lipinski parameters).
+2. Uses a pre-computed "Rule of Five flag" to filter out non-drug-like molecules.
+3. Sorts the molecules by binding affinity (more negative binding affinity means tighter binding)
+4. Flags "hits" to an user-defined binding affinity threshold.
+5. Writes out a ranked summary table and a bar chart of binding affinities.
 
 ## Technical Stack
 
@@ -36,7 +36,7 @@ python parse_and_filter.py --input data/mock_data/docking_results.csv --results 
 
 ## Mock Data
 
-`data/mock_data/docking_results.csv` is an illustrative dataset for testing the pipeline. It does not reproduce the exact rankings or compound set from the published screening study (Biochemical and Biophysical Reports,[doi.org/10.1016/j.bbrep.2025.102171]) — it is provided so the pipeline can be run end-to-end without access to the original raw data.
+`data/mock_data/docking_results.csv` is an illustrative dataset for testing the pipeline. It does not reproduce the exact rankings or compound set from the published screening study (Biochemical and Biophysical Reports, https://doi.org/10.1016/j.bbrep.2025.102171) — it is provided so the pipeline can be run end-to-end without access to the original raw data.
 
 ## File Structure
 
